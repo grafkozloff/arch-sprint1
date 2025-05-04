@@ -5,16 +5,14 @@ top to bottom direction
 
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
 
-Person(user, "User", "A user of the fitness club system")
-Person(admin, "Administrator", "An administrator managing the system")
-System(FitLifeSystem, "FitLife System", "System managing memberships, schedules, and payments")
+Person(user, "User", "A user of Warmhouse application")
+Person(admin, "Administrator", "An administrator managing Warmhouse application")
+System(WarmhouseApp, "Warmhouse application", "System managing sensors")
 
-System_Ext(api, "Third-Party API", "External API for fitness data integration")
-System_Ext(bank, "Bank System", "External bank for processing payments")
+System_Ext(sensor, "Heating system", "Contains temperature sensors and switching controller")
 
-Rel(user, FitLifeSystem, "Uses the system")
-Rel(admin,FitLifeSystem,"Manages the system")
-Rel(FitLifeSystem,api,"Fetches fitness data")
-Rel(FitLifeSystem,bank,"Processes payments")
+Rel(user, WarmhouseApp, "Switches on/off the heating, checks temperature")
+Rel(admin, WarmhouseApp, "Manages the system")
+Rel(WarmhouseApp, sensor, "Gets temperature data, sends switch on/off requests")
 
 @enduml
