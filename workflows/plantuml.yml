@@ -3,11 +3,9 @@ name: PlantUML Diagrams
 on:
   push:
     branches:
-      - main
       - warmhouse
   pull_request:
     branches:
-      - main
       - warmhouse
 
 jobs:
