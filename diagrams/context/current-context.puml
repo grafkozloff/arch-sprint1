@@ -9,10 +9,11 @@ Person(user, "User", "A user of Warmhouse application")
 Person(admin, "Administrator", "An administrator managing Warmhouse application")
 System(WarmhouseApp, "Warmhouse application", "System managing sensors")
 
-System_Ext(sensor, "Heating system", "Contains temperature sensors and switching controller")
+System_Ext(sensors, "Heating system", "Contains temperature sensors and switching controller")
 
 Rel(user, WarmhouseApp, "Switches on/off the heating, checks temperature")
 Rel(admin, WarmhouseApp, "Manages the system")
-Rel(WarmhouseApp, sensor, "Gets temperature data, sends switch on/off requests")
+Rel(admin, sensors, "Installs sensors")
+Rel(WarmhouseApp, sensors, "Gets temperature data, sends switch on/off requests")
 
 @enduml

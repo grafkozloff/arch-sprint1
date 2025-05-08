@@ -1,0 +1,67 @@
+@startuml
+title Warmhouse Container Diagram
+
+'top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "User", "A user of Warmhouse application")
+System(WarmhouseApp, "Warmhouse application", "System managing Smart home sensors")
+
+Container_Boundary(WarmhouseApp, "Warmhouse application") {
+  Container(WebApp, "Web Application", "JavaScript, React", "Handles user interactions")
+'  services
+  Container(UserService, "User Management Service", "Go", "Manages users")
+  Container(SensorService, "Sensor Management Service", "Go", "Manages sensors")
+  Container(TelemetryService, "Telemetry Monitoring Service", "Go", "Monitors and stores telemetry")
+'  databases
+  Container(UserDatabase, "User Database", "PostgreSQL", "Stores user data")
+  Container(SensorDatabase, "Sensor Database", "PostgreSQL", "Stores sensor data")
+  Container(TelemetryDatabase, "Telemetry Database", "PostgreSQL", "Stores telemetry data")
+'  topics
+  Container(SensorControlTopic, "Sensor Control Topic", "MQTT")
+  Container(SensorStateTopic, "Sensor State Topic", "MQTT")
+  Container(SensorTelemetryTopic, "Sensor Telemetry Topic", "MQTT")
+  Container(ServiceControlTopic, "Service Control Topic", "MQTT")
+  Container(ServiceStateTopic, "Service State Topic", "MQTT")
+  Container(ServiceTelemetryTopic, "Service Telemetry Topic", "MQTT")
+}
+
+System_Ext(sensors, "Smart home sensors", "Contains different sensors connected to Internet")
+
+Rel(user, WebApp, "Uses the system")
+Rel(user, sensors, "Installs sensors")
+
+Rel(WebApp, UserService, "Reads/writes user data", "REST")
+Rel(WebApp, SensorService, "Reads/writes sensors data", "REST")
+Rel(WebApp, ServiceControlTopic, "Publishes to")
+Rel(WebApp, ServiceStateTopic, "Subscribes to")
+Rel(WebApp, ServiceTelemetryTopic, "Subscribes to")
+
+Rel(SensorService, ServiceControlTopic, "Subscribes to")
+Rel(SensorService, ServiceStateTopic, "Publishes to")
+Rel(TelemetryService, ServiceTelemetryTopic, "Publishes to")
+
+Rel(UserService, UserDatabase, "Reads/writes user data")
+Rel(SensorService, SensorDatabase, "Reads/writes sensor data")
+Rel(TelemetryService, TelemetryDatabase, "Reads/writes telemetry data")
+
+Rel(SensorService, SensorControlTopic, "Publishes to")
+Rel(SensorService, SensorStateTopic, "Subscribes to")
+Rel(TelemetryService, SensorTelemetryTopic, "Subscribes to")
+
+Rel(sensors, SensorControlTopic, "Subscribes to")
+Rel(sensors, SensorStateTopic, "Publishes to")
+Rel(sensors, SensorTelemetryTopic, "Publishes to")
+
+WebApp -[hidden]-> UserService
+WebApp -[hidden]-> SensorService
+WebApp -[hidden]-> TelemetryService
+ServiceControlTopic -[hidden]-> SensorControlTopic
+ServiceControlTopic -[hidden]-> SensorService
+ServiceStateTopic -[hidden]-> SensorStateTopic
+ServiceTelemetryTopic -[hidden]-> SensorTelemetryTopic
+sensors -[hidden]-> SensorControlTopic
+sensors -[hidden]-> SensorStateTopic
+sensors -[hidden]-> SensorTelemetryTopic
+@enduml

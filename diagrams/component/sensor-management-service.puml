@@ -1,0 +1,32 @@
+@startuml
+title Sensor Management Service Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmhouseApp, "Warmhouse application") {
+  Container(SensorService, "Sensor Management Service", "Go", "Manages sensors")
+  Container(SensorDatabase, "Sensor Database", "PostgreSQL", "Stores sensor data")
+}
+
+Container(SensorService, "Sensor Management Service", "Go") {
+  Component(SensorDataController, "SensorDataController", "Handles read/write requests")
+  Component(ServiceControlSubscriber, "ServiceControlSubscriber", "Consumes control events from Web Application")
+  Component(SensorControlPublisher, "SensorControlPublisher", "Produces control events for sensors")
+  Component(ServiceStatePublisher, "ServiceStatePublisher", "Produces state events for Web Application")
+  Component(SensorStateSubscriber, "SensorStateSubscriber", "Consumes state events from sensors")
+  Component(CommandProcessor, "CommandProcessor", "Business logic")
+  Component(StateManager, "StateManager", "Business logic")
+  Component(RepositoryLayer, "Repository Layer", "Data access logic")
+}
+
+Rel(SensorDataController, StateManager, "Calls business logic")
+Rel(StateManager, ServiceStatePublisher, "Calls API")
+Rel(SensorStateSubscriber, StateManager, "Calls business logic")
+Rel(CommandProcessor, SensorControlPublisher, "Calls API")
+Rel(ServiceControlSubscriber, CommandProcessor, "Calls business logic")
+Rel(CommandProcessor, RepositoryLayer, "Reads/Writes data")
+Rel(StateManager, RepositoryLayer, "Reads/Writes data")
+Rel(RepositoryLayer, SensorDatabase, "Reads/Writes data")
+@enduml
