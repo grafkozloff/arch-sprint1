@@ -6,27 +6,45 @@ top to bottom direction
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
 
 Container_Boundary(WarmhouseApp, "Warmhouse application") {
+  Container(WebApp, "Web Application", "JavaScript, React", "Handles user interactions")
   Container(SensorService, "Sensor Management Service", "Go", "Manages sensors")
-  Container(SensorDatabase, "Sensor Database", "PostgreSQL", "Stores sensor data")
+  Container(UserService, "User Management Service", "Go", "Manages users")
+  Container(TelemetryService, "Telemetry Monitoring Service", "Go", "Monitors and stores telemetry")
+  ContainerQueue(SensorControlTopic, "Sensor Control Topic", "MQTT")
+  ContainerQueue(SensorStateTopic, "Sensor State Topic", "MQTT")
+  ContainerQueue(ServiceStateTopic, "Service State Topic", "MQTT")
+  ContainerDb(SensorDatabase, "Sensor Database", "PostgreSQL", "Stores sensor data")
 }
 
 Container(SensorService, "Sensor Management Service", "Go") {
-  Component(SensorDataController, "SensorDataController", "Handles read/write requests")
-  Component(ServiceControlSubscriber, "ServiceControlSubscriber", "Consumes control events from Web Application")
-  Component(SensorControlPublisher, "SensorControlPublisher", "Produces control events for sensors")
-  Component(ServiceStatePublisher, "ServiceStatePublisher", "Produces state events for Web Application")
-  Component(SensorStateSubscriber, "SensorStateSubscriber", "Consumes state events from sensors")
-  Component(CommandProcessor, "CommandProcessor", "Business logic")
-  Component(StateManager, "StateManager", "Business logic")
+  Component(SensorDataController, "Sensor Data Controller", "Handles read/write requests")
+  Component(SensorCommandConroller, "Sensor Command Conroller", "Handles command requests from Web Application")
+  Component(SensorControlPublisher, "Sensor Control Publisher", "Produces control events for sensors")
+  Component(ServiceStatePublisher, "Service State Publisher", "Produces state events for Web Application")
+  Component(SensorStateSubscriber, "Sensor State Subscriber", "Consumes state events from sensors")
+  Component(UserVerificationClient, "User Verification Client", "Verifies users")
+  Component(TelemetryServiceClient, "Telemetry Service Client", "Verifies users")
+  Component(CommandProcessor, "Command Processor", "Business logic")
+  Component(StateManager, "State Manager", "Business logic")
   Component(RepositoryLayer, "Repository Layer", "Data access logic")
 }
-
+Rel(WebApp, SensorCommandConroller, "Calls API")
+Rel(WebApp, SensorDataController, "Calls API")
+Rel(SensorStateSubscriber, SensorStateTopic, "Subscribes to")
+Rel(ServiceStatePublisher, ServiceStateTopic, "Publishes to")
+Rel(SensorControlPublisher, SensorControlTopic, "Publishes to")
 Rel(SensorDataController, StateManager, "Calls business logic")
-Rel(StateManager, ServiceStatePublisher, "Calls API")
+Rel(StateManager, ServiceStatePublisher, "Uses")
 Rel(SensorStateSubscriber, StateManager, "Calls business logic")
-Rel(CommandProcessor, SensorControlPublisher, "Calls API")
-Rel(ServiceControlSubscriber, CommandProcessor, "Calls business logic")
+Rel(CommandProcessor, SensorControlPublisher, "Uses")
+Rel(SensorCommandConroller, CommandProcessor, "Calls business logic")
 Rel(CommandProcessor, RepositoryLayer, "Reads/Writes data")
 Rel(StateManager, RepositoryLayer, "Reads/Writes data")
+Rel(StateManager, TelemetryServiceClient, "Uses")
 Rel(RepositoryLayer, SensorDatabase, "Reads/Writes data")
+Rel(UserVerificationClient, UserService, "Calls API")
+Rel(TelemetryServiceClient, TelemetryService, "Calls API")
+
+Rel(SensorDataController, UserVerificationClient, "Uses")
+Rel(SensorCommandConroller, UserVerificationClient, "Uses")
 @enduml

@@ -5,24 +5,30 @@ top to bottom direction
 
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
 
-Container_Boundary(UserService, "User Management Service") {
-  Container(WebApp, "Web Application", "Java, Spring", "Handles user interactions")
-  Container(Database, "Database", "PostgreSQL", "Stores user data and schedules")
+Container_Boundary(WarmhouseApp, "Warmhouse application") {
+  Container(WebApp, "Web Application", "JavaScript, React", "Handles user interactions")
+  Container(SensorService, "Sensor Management Service", "Go", "Manages sensors")
+  Container(UserService, "User Management Service", "Go", "Manages users")
+  ContainerDb(UserDatabase, "User Database", "PostgreSQL", "Stores user data")
 }
 
-Container(WebApp, "Web Application", "Java, Spring") {
-  Component(AuthController, "AuthController", "Handles authentication and authorization")
-  Component(UserController, "UserController", "Manages user profiles")
-  Component(ScheduleController, "ScheduleController", "Manages schedules")
-  Component(PaymentController, "PaymentController", "Handles payment processing")
-  Component(ServiceLayer, "Service Layer", "Business logic")
+Container(UserService, "User Management Service", "Go") {
+  Component(UserController, "User Controller", "Manages user profiles")
+  Component(AuthController, "Auth Controller", "Handles authentication and authorization")
+  Component(VerifyController, "Verify Controller", "Verifies user")
+  Component(UserProfileService, "User Profile Service", "Business logic")
+  Component(AuthService, "Auth Service", "Business logic")
   Component(RepositoryLayer, "Repository Layer", "Data access logic")
 }
 
-Rel(AuthController,ServiceLayer,"Calls business logic")
-Rel(UserController,ServiceLayer,"Calls business logic")
-Rel(ScheduleController,ServiceLayer,"Calls business logic")
-Rel(PaymentController,ServiceLayer,"Calls business logic")
-Rel(ServiceLayer,RepositoryLayer,"Reads/Writes data")
-Rel(RepositoryLayer,Database,"Reads/Writes user data")
+Rel(WebApp, AuthController, "Calls API")
+Rel(WebApp, UserController, "Calls API")
+Rel(SensorService, VerifyController, "Calls API")
+Rel(UserController, UserProfileService, "Calls business logic")
+Rel(AuthController, AuthService, "Calls business logic")
+Rel(VerifyController, AuthService, "Calls business logic")
+Rel(UserProfileService, AuthService, "Calls business logic")
+Rel(AuthService, RepositoryLayer, "Reads/Writes data")
+Rel(UserProfileService, RepositoryLayer, "Reads/Writes data")
+Rel(RepositoryLayer, UserDatabase, "Reads/Writes user data")
 @enduml

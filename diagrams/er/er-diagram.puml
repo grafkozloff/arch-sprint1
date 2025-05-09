@@ -1,0 +1,47 @@
+@startchen
+title Warmhouse ER Diagram
+
+left to right direction
+
+entity USER {
+  id : INTEGER <<key>>
+  name : TEXT
+  born : DATE
+  login : TEXT
+  password : TEXT
+  status : INTEGER
+  created : DATETIME
+  last_updated : DATETIME
+}
+
+entity SENSOR {
+  id : INTEGER <<key>>
+  type : TEXT
+  model : TEXT
+  name : TEXT
+  location : TEXT
+  state : INTEGER
+  status : INTEGER
+  created : DATETIME
+  last_updated : DATETIME
+}
+
+entity TELEMETRY {
+  timestamp : DATETIME <<key>>
+  value : NUMBER
+  unit : TEXT
+}
+
+relationship HAS_SENSOR <<identifying>> {
+}
+
+HAS_SENSOR -1- USER
+HAS_SENSOR =N= SENSOR
+
+relationship HAS_TELEMETRY <<identifying>> {
+}
+
+HAS_TELEMETRY -1- SENSOR
+HAS_TELEMETRY =N= TELEMETRY
+
+@endchen
