@@ -5,52 +5,52 @@ top to bottom direction
 
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
 
+class SensorStateSubscriber {}
+class SensorDataController {}
+class SensorCommandController {}
 
-class SensorStateSubscriber {
-  +void consume(byte[] payload)
-}
+class ServiceStatePublisher {}
+class SensorControlPublisher {}
+class UserVerificationClient {}
+class TelemetryServiceClient {}
+class SensorManager {}
+class StateManager {}
+class CommandProcessor {}
+class Sensor {}
+class SensorRepository {}
+class SensorState {}
+class SensorStateSubscription {}
+class SensorControlSignal {}
+class Command {}
+class SensorRepository
+class SensorStateSubscriptionRepository
 
-class ServiceStatePublisher {
-  +void publish(Sensor sensor)
-}
+SensorStateSubscriber --> StateManager : updates sensor state
+SensorStateSubscriber ..> SensorState : passes
+SensorDataController --> SensorManager : creates/updates sensors
+UserVerificationClient <-- SensorDataController : verifies client
+SensorDataController ..> Sensor : passes
+SensorCommandController --> CommandProcessor : executes command
+UserVerificationClient <-- SensorCommandController : verifies client
+SensorCommandController ..> Command
 
-class SensorControlPublisher {
-  +void publish(SensorControlSignal signal)
-}
+SensorManager --> SensorRepository
+SensorManager --> SensorStateSubscriptionRepository
+SensorManager --> TelemetryServiceClient : creates telemetry subscription
+SensorManager .> SensorStateSubscription
+SensorStateSubscription <.. SensorStateSubscriptionRepository
+Sensor <. SensorManager
+Sensor <-l[hidden]- StateManager
+Sensor <.. SensorRepository
 
-class SensorDataController {
-  +List<Sensor> all()
-  +Sensor getSensor(Long id)
-  +Sensor newSensor(Sensor sensor)
-  +Sensor amendSensor(Long id, Sensor sensor)
-  +void deleteSensor(Long id)
-}
+CommandProcessor .> Command : processes
+CommandProcessor ..> SensorControlSignal : creates
+CommandProcessor --> SensorControlPublisher
+SensorControlPublisher .> SensorControlSignal
 
-class SensorCommandController {
-  +void commandDo(Command command)
-}
-
-class UserVerificationClient {
-  +boolean isValid(String jwt)
-}
-
-class TelemetryServiceClient {
-  +void subscribe()
-}
-
-class Sensor {
-}
-
-class SensorRepository {
-}
-
-class SensorState {
-}
-
-class SensorControlSignal {
-}
-
-class Command {
-}
+StateManager --> SensorRepository
+StateManager --> ServiceStatePublisher
+SensorState <. StateManager
+SensorState <.. ServiceStatePublisher
 
 @enduml
