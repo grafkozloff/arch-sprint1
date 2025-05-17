@@ -1,0 +1,210 @@
+asyncapi: 3.0.0
+info:
+  title: Warmhouse Application
+  version: 1.0.0
+  description: Async API for Warmhouse Application via MQTT
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0'
+servers:
+  production:
+    host: 'mqtt.warmhouse.ru:1883'
+    protocol: mqtt
+    protocolVersion: 1.0.0
+    description: Warmhouse MQTT broker
+channels:
+  serviceStateTopic:
+    address: '/service/state/{userId}'
+    messages:
+      sensorState:
+        $ref: '#/components/messages/sensorState'
+    description: A channel to send sensor states to the user application
+  sensorStateTopic:
+    address: '/sensor/state/{sensorId}'
+    messages:
+      rawSensorState:
+        $ref: '#/components/messages/rawSensorState'
+    description: A channel to receive sensor states from sensors
+  sensorControlTopic:
+    address: '/sensor/control/{sensorId}'
+    messages:
+      command:
+        $ref: '#/components/messages/command'
+    description: A channel to send commands to sensors
+  serviceTelemetryTopic:
+    address: '/service/telemetry/{userId}'
+    messages:
+      telemetry:
+        $ref: '#/components/messages/telemetry'
+    description: A channel to send sensor telemetry to the user application
+  sensorTelemetryTopic:
+    address: '/sensor/telemetry/{sensorId}'
+    messages:
+      rawTelemetry:
+        $ref: '#/components/messages/rawTelemetry'
+    description: A channel to receive sensor telemetry from sensors
+operations:
+  rawSensorStateSend:
+    action: send
+    channel:
+      $ref: '#/channels/sensorStateTopic'
+    summary: Send a raw sensor state
+  rawSensorStateReceive:
+    action: receive
+    channel:
+      $ref: '#/channels/sensorStateTopic'
+    summary: Receive a raw sensor state
+  sensorStateSend:
+    action: send
+    channel:
+      $ref: '#/channels/serviceStateTopic'
+    summary: Send an enriched sensor state
+  sensorStateReceive:
+    action: receive
+    channel:
+      $ref: '#/channels/serviceStateTopic'
+    summary: Receive an enriched sensor state
+  commandSend:
+    action: send
+    channel:
+      $ref: '#/channels/sensorControlTopic'
+    summary: Send a command
+  commandReceive:
+    action: receive
+    channel:
+      $ref: '#/channels/sensorControlTopic'
+    summary: Receive a command
+  rawTelemetrySend:
+    action: send
+    channel:
+      $ref: '#/channels/sensorTelemetryTopic'
+    summary: Send a raw sensor telemetry
+  rawTelemetryReceive:
+    action: receive
+    channel:
+      $ref: '#/channels/sensorTelemetryTopic'
+    summary: Receive a raw sensor telemetry
+  sensorTelemetrySend:
+    action: send
+    channel:
+      $ref: '#/channels/serviceTelemetryTopic'
+    summary: Send an enriched sensor telemetry
+  sensorTelemetryReceive:
+    action: receive
+    channel:
+      $ref: '#/channels/serviceTelemetryTopic'
+    summary: Receive an enriched sensor telemetry
+components:
+  messages:
+    rawSensorState:
+      name: rawSensorState
+      title: Raw state message
+      summary: A message from a sensor with its state
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/rawSensorState'
+    sensorState:
+      name: sensorState
+      title: State message
+      summary: An enriched message from the state management service
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/sensorState'
+    command:
+      name: command
+      title: Command message
+      summary: A command message to a sensor
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/command'
+    rawTelemetry:
+      name: rawTelemetry
+      title: Raw telemetry message
+      summary: A message from a sensor with its telemetry
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/rawTelemetry'
+    telemetry:
+      name: telemetry
+      title: Telemetry message
+      summary: An enriched message from the telemetry monitoring service
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/telemetry'
+  schemas:
+    rawSensorState:
+      type: object
+      properties:
+        state:
+          type: integer
+          format: int32
+          example: 5
+        timeStamp:
+          type: string
+          description: Creation timestamp
+          format: date-time
+          example: '2025-10-31T01:30:00.000-03:00'
+    sensorState:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        state:
+          type: integer
+          format: int32
+          example: 5
+        lastUpdated:
+          type: string
+          description: Last updated timestamp
+          format: date-time
+          example: '2025-10-31T01:30:00.000-03:00'
+    command:
+      type: object
+      properties:
+        capabilityId:
+          type: integer
+          format: int32
+          example: 5
+        command:
+          type: object
+        timeStamp:
+          type: string
+          4description: Creation timestamp
+          format: date-time
+          example: '2025-10-31T01:30:00.000-03:00'
+    rawTelemetry:
+      type: object
+      properties:
+        value:
+          type: number
+          format: double
+          example: 21.5
+        unit:
+          type: string
+          example: oC
+        timeStamp:
+          type: string
+          description: Creation timestamp
+          format: date-time
+          example: '2025-10-31T01:30:00.000-03:00'
+    telemetry:
+      type: object
+      properties:
+        sensorId:
+          type: integer
+          format: int64
+          example: 10
+        value:
+          type: number
+          format: double
+          example: 21.5
+        unit:
+          type: string
+          example: oC
+        timeStamp:
+          type: string
+          description: Creation timestamp
+          format: date-time
+          example: '2025-10-31T01:30:00.000-03:00'

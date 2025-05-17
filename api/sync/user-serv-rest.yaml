@@ -1,11 +1,11 @@
 openapi: 3.0.4
 info:
-  title: Warmhouse Sensor Management Service REST API
+  title: Warmhouse User Management Service REST API
   description: |-
-    This is a REST API specification for Warmhouse Sensor Management Service.
+    This is a REST API specification for Warmhouse User Management Service.
   version: 1.0.0
 servers:
-  - url: https://sensor-serv.warmhouse.ru/api/v1
+  - url: https://user-serv.warmhouse.ru/api/v1
 tags:
   - name: user
     description: Operations about user
@@ -23,9 +23,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/User'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/User'
       responses:
         '200':
           description: successful operation
@@ -33,6 +30,73 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /user/login:
+    get:
+      tags:
+        - user
+      summary: Logs user into the system.
+      description: Log into the system.
+      operationId: loginUser
+      parameters:
+        - name: login
+          in: query
+          description: The user name for login
+          required: false
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password for login in clear text
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        '400':
+          description: Invalid login/password supplied
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /user/logout:
+    get:
+      tags:
+        - user
+      summary: Logs out current logged in user session.
+      security:
+        - BearerAuth: []
+      description: Log user out of the system.
+      operationId: logoutUser
+      parameters: []
+      responses:
+        '200':
+          description: successful operation
         default:
           description: Unexpected error
           content:
@@ -62,8 +126,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid login supplied
         '404':
           description: User not found
         default:
@@ -91,9 +153,6 @@ paths:
         description: Update an existent user in the store
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/User'
       responses:
@@ -173,56 +232,6 @@ components:
           description: Last updated timestamp
           format: date-time
           example: '2025-10-31T01:30:00.000-03:00'
-    Sensor:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-        userId:
-          type: integer
-          format: int64
-          example: 10
-        type:
-          type: string
-          example: heater
-        model:
-          type: string
-          example: Russell Hobbs Oscillating Ceramic 2kW Heater
-        name:
-          type: string
-          example: 'bedroom heater'
-        location:
-          type: string
-          example: 'country house'
-        state:
-          type: integer
-          format: int32
-          example: 0
-        status:
-          type: integer
-          description: User Status
-          format: int32
-          example: 1
-        lastUpdated:
-          type: string
-          description: Last updated timestamp
-          format: date-time
-          example: '2025-10-31T01:30:00.000-03:00'
-    Command:
-      type: object
-      properties:
-        sensorId:
-          type: integer
-          format: int64
-          example: 10325
-        capabilityId:
-          type: integer
-          format: int32
-          example: 5
-        command:
-          type: object
     ApiResponse:
       type: object
       properties:
@@ -232,6 +241,11 @@ components:
         type:
           type: string
         message:
+          type: string
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
           type: string
     Error:
       type: object
