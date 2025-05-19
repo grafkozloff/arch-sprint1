@@ -183,7 +183,7 @@ components:
           example: 21.5
         unit:
           type: string
-          example: oC
+          example: Celsius
         timeStamp:
           type: string
           description: Creation timestamp
@@ -202,7 +202,7 @@ components:
           example: 21.5
         unit:
           type: string
-          example: oC
+          example: Celsius
         timeStamp:
           type: string
           description: Creation timestamp
