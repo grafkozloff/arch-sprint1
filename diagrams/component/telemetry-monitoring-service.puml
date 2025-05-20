@@ -1,0 +1,32 @@
+@startuml
+title Telemetry Monitoring Service Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmhouseApp, "Warmhouse application") {
+  Container(TelemetryService, "Telemetry Monitoring Service", "Go", "Monitors and stores telemetry")
+  Container(SensorService, "Sensor Management Service", "Go", "Manages sensors")
+  ContainerQueue(SensorTelemetryTopic, "Sensor Telemetry Topic", "MQTT")
+  ContainerQueue(ServiceTelemetryTopic, "Service Telemetry Topic", "MQTT")
+  ContainerDb(TelemetryDatabase, "Telemetry Database", "PostgreSQL", "Stores telemetry data")
+}
+
+Container(TelemetryService, "Telemetry Monitoring Service", "Go") {
+  Component(TelemetryController, "Telemetry Controller", "Handles authentication and authorization")
+  Component(ServiceLayer, "Service Layer", "Business logic")
+  Component(RepositoryLayer, "Repository Layer", "Data access logic")
+  Component(TelemetryDataSubscriber, "Telemetry Data Subscriber", "Consumes telemetry events from sensors")
+  Component(TelemetryDataPublisher, "Telemetry Data Publisher", "Produces telemetry events for Web Application")
+}
+
+Rel(SensorService, TelemetryController, "Calls API")
+Rel(TelemetryDataSubscriber, SensorTelemetryTopic, "Subscribes to")
+Rel(TelemetryDataSubscriber, ServiceLayer, "Calls business logic")
+Rel(TelemetryController, ServiceLayer, "Calls business logic")
+Rel(ServiceLayer, TelemetryDataPublisher, "Uses")
+Rel(ServiceLayer, RepositoryLayer, "Reads/Writes data")
+Rel(TelemetryDataPublisher, ServiceTelemetryTopic, "Publishes to")
+Rel(RepositoryLayer, TelemetryDatabase, "Reads/Writes user data")
+@enduml

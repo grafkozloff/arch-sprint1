@@ -1,0 +1,79 @@
+openapi: 3.0.4
+info:
+  title: Warmhouse Telemetry Management Service REST API
+  description: |-
+    This is a REST API specification for Warmhouse Telemetry Management Service.
+  version: 1.0.0
+servers:
+  - url: https://telemetry-serv.warmhouse.ru/api/v1
+tags:
+  - name: telemetry
+    description: Operations about telemetry subscription
+paths:
+  /telemetry/{id}:
+    put:
+      tags:
+        - telemetry
+      summary: Create or updates the telemetry subscription for a sensor.
+      operationId: subscribe
+      parameters:
+        - name: id
+          in: path
+          description: the id of the sensor which subscription is changed
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Creates/updates telemetry subscription for a user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Telemetry'
+      responses:
+        '200':
+          description: successful operation
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Telemetry:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+          example: 3487
+        status:
+          type: integer
+          description: User Status
+          format: int32
+          example: 1
+        lastUpdated:
+          type: string
+          description: Last updated timestamp
+          format: date-time
+          example: '2025-10-31T01:30:00.000-03:00'
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message

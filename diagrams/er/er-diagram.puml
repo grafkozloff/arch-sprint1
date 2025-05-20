@@ -1,0 +1,60 @@
+@startuml
+title Warmhouse ER Diagram
+
+entity USER {
+  id : INTEGER <<PK>>
+  login : TEXT
+  first_name : TEXT
+  last_name : TEXT
+  email : TEXT
+  phone : TEXT
+  password : TEXT
+  status : INTEGER
+  created : DATETIME
+  last_updated : DATETIME
+}
+
+entity SENSOR {
+  id : TEXT <<PK>>
+  user_id : INTEGER
+  type : TEXT
+  model : TEXT
+  name : TEXT
+  location : TEXT
+  state : INTEGER
+  status : INTEGER
+  created : DATETIME
+  last_updated : DATETIME
+}
+
+entity SENSOR_STATE_SUBSCRIPTION {
+  sensor_id : TEXT <<PK>>
+  user_id : INTEGER
+  status : INTEGER
+  created : DATETIME
+  last_updated : DATETIME
+}
+
+entity TELEMETRY {
+  sensor_id : TEXT <<PK>>
+  timestamp : DATETIME <<PK>>
+  value : NUMBER
+  unit : TEXT
+}
+
+entity TELEMETRY_SUBSCRIPTION {
+  sensor_id : TEXT <<PK>>
+  user_id : INTEGER
+  status : INTEGER
+  created : DATETIME
+  last_updated : DATETIME
+}
+
+SENSOR }o..|| USER
+TELEMETRY }o..|| SENSOR
+SENSOR_STATE_SUBSCRIPTION }o..|| USER
+TELEMETRY_SUBSCRIPTION }o..|| USER
+SENSOR_STATE_SUBSCRIPTION |o..|| SENSOR
+TELEMETRY_SUBSCRIPTION |o..|| SENSOR
+
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+title Sensor Management Service Code Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+class SensorStateSubscriber {}
+class SensorDataController {}
+class SensorCommandController {}
+
+class ServiceStatePublisher {}
+class SensorControlPublisher {}
+class UserVerificationClient {}
+class TelemetryServiceClient {}
+class SensorManager {}
+class StateManager {}
+class CommandProcessor {}
+class Sensor {}
+class SensorRepository {}
+class SensorState {}
+class SensorStateSubscription {}
+class SensorControlSignal {}
+class Command {}
+class SensorRepository
+class SensorStateSubscriptionRepository
+
+SensorStateSubscriber --> StateManager : updates sensor state
+SensorStateSubscriber ..> SensorState : passes
+SensorDataController --> SensorManager : creates/updates sensors
+UserVerificationClient <-- SensorDataController : verifies client
+SensorDataController ..> Sensor : passes
+SensorCommandController --> CommandProcessor : executes command
+UserVerificationClient <-- SensorCommandController : verifies client
+SensorCommandController ..> Command
+
+SensorManager --> SensorRepository
+SensorManager --> SensorStateSubscriptionRepository
+SensorManager --> TelemetryServiceClient : creates telemetry subscription
+SensorManager .> SensorStateSubscription
+SensorStateSubscription <.. SensorStateSubscriptionRepository
+Sensor <. SensorManager
+Sensor <-l[hidden]- StateManager
+Sensor <.. SensorRepository
+
+CommandProcessor .> Command : processes
+CommandProcessor ..> SensorControlSignal : creates
+CommandProcessor --> SensorControlPublisher
+SensorControlPublisher .> SensorControlSignal
+
+StateManager --> SensorRepository
+StateManager --> ServiceStatePublisher
+SensorState <. StateManager
+SensorState <.. ServiceStatePublisher
+
+@enduml
